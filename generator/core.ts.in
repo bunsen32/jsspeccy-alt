@@ -1,4 +1,4 @@
-#alloc frameBuffer[0x6600]: u8
+#alloc frameBuffer[0x7e00]: u8
 export const FRAME_BUFFER:usize = (&frameBuffer);
 
 // allocate memory for 8 RAM, 8 ROM pages
@@ -96,6 +96,10 @@ let betadiskEnabled:bool = false;
 let betadiskROMActive:bool = false;
 let tapeTrapsEnabled:bool = true;
 
+// Screen normal colour palette:
+#alloc standardPalette[16]:u8
+standardPalette = [0x00, 0x47, 0x58, 0x5b, 0xc8, 0xcf, 0xdc, 0xb6, 0x00, 0x4b, 0x5d, 0x9f, 0xec, 0xef, 0xfd, 0xff];
+let flashPhase:u8 = 0
 
 // ULAplus functionality:
 // (We only support palettes, not Timex video mode selection.)
@@ -626,16 +630,30 @@ function updateFramebuffer():void {
     while (screenEvents[screenEventPointer] <= t) {
         const addressWord:u32 = screenEvents[screenEventPointer + 1];
         if (addressWord == 0xffffffff) {
-            frameBuffer[framebufferIndex++] = borderColour;
+            frameBuffer[framebufferIndex++] = standardPalette[borderColour];
             floatingBusValue = 0xff;
         } else {
             const screenAddr:u32 = screenBaseAddr | (addressWord & 0xffff);
             const attributeAddr:u32 = screenBaseAddr | (addressWord >> 16);
-            frameBuffer[framebufferIndex++] = machineMemory[screenAddr];
-            frameBuffer[framebufferIndex++] = machineMemory[attributeAddr];
-            frameBuffer[framebufferIndex++] = machineMemory[screenAddr + 1];
-            floatingBusValue = machineMemory[attributeAddr + 1];
-            frameBuffer[framebufferIndex++] = floatingBusValue;
+
+            for (let i = 0; i < 2; i++) {
+                const pixels:u8 = machineMemory[screenAddr + i];
+                const attr:u8 = machineMemory[attributeAddr + i];
+
+                let ink:u8, paper:u8;
+                if ((attr & 0x80) && (flashPhase & 0x10)) {
+                    // reverse ink and paper
+                    paper = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
+                    ink = standardPalette[(attr & 0x78) >> 3];
+                } else {
+                    ink = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
+                    paper = standardPalette[(attr & 0x78) >> 3];
+                }
+                frameBuffer[framebufferIndex++] = pixels;
+                frameBuffer[framebufferIndex++] = paper;
+                frameBuffer[framebufferIndex++] = ink;
+                floatingBusValue = attr
+            }
         }
         screenEventPointer += 2;
     }
@@ -801,6 +819,7 @@ function recalculateAYCyclesPerSample():void {
 export function runFrame():i16 {
     screenEventPointer = 0;
     framebufferIndex = 0;
+    flashPhase = (flashPhase + 1) & 0xff
 
     if (requestedSamplesPerFrame != samplesPerFrame) {
         samplesPerFrame = requestedSamplesPerFrame;
