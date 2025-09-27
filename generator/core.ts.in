@@ -96,6 +96,18 @@ let betadiskEnabled:bool = false;
 let betadiskROMActive:bool = false;
 let tapeTrapsEnabled:bool = true;
 
+
+// ULAplus functionality:
+// (We only support palettes, not Timex video mode selection.)
+#const ULAPLUS_PALETTE_GROUP 0x00
+#const ULAPLUS_MODE_GROUP 0x01
+let ulaPlusEnabled:bool = true;
+let ulaPlusSelectedGroup:u8 = 0;
+let ulaPlusSelectedSubgroup:u8 = 0;
+let ulaPlusPaletteMode:bool = false;
+#alloc ulaPlusPalette[64]: u8
+export const ULA_PLUS_PALETTE:usize = (&ulaPlusPalette);
+
 let i:u8 = 0;
 while (true) {
     sz53Table[i] = u8(i) & ( FLAG_3 | FLAG_5 | FLAG_S );
@@ -353,6 +365,12 @@ export function getHalted():bool {
 export function setTapeTraps(val:bool):void {
     tapeTrapsEnabled = val;
 }
+export function getUlaPlusEnabled():bool {
+    return ulaPlusEnabled
+}
+export function setUlaPlusEnabled(val:bool):void {
+    ulaPlusEnabled = val;
+}
 
 function log(time:u32, type:u16, addr:u16, val:u8):void {
     logEntries[logPtr++] = u16(time);
@@ -551,6 +569,28 @@ export function writePort(addr:u16, val:u8):void {
     } else if ((addr & 0xc002) == 0x8000) {
         updateAudioBuffer(t);
         writeAYRegister(selectedAYRegister, val);
+
+    } else if (addr == 0xbf3b) {
+        // ULAplus control por (write-only):
+        ulaPlusSelectedGroup = (val >> 6) & 0x3
+        ulaPlusSelectedSubgroup = val & 0x3f
+
+    } else if (addr == 0xff3b) {
+        // ULAplus data port:
+
+        switch(ulaPlusSelectedGroup) {
+            case ULAPLUS_MODE_GROUP:
+                updateFramebuffer();  // So that (in future) dynamic palette switching works.
+                ulaPlusPaletteMode = (val & 1) != 0;
+                break;
+            case ULAPLUS_PALETTE_GROUP:
+                updateFramebuffer();  // So that (in future) dynamic palette switching works.
+                ulaPlusPalette[ulaPlusSelectedSubgroup] = val;
+                break;
+            default:
+                // Do nothing
+                break;
+        }
     }
 
     /* apply post-write contention */
