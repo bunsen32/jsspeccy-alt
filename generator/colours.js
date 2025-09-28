@@ -9,7 +9,9 @@ const colours = [
     0x40b010ff,
     0x50c0b0ff,
     0xe0c010ff,
-    0xc0c0c0ff,
+    // 0xc0c0c0ff, // Un-bright white, orginal JSSpeccy3 value (in ULAplus space, this has a blue tint)
+    0xb6b6b6ff, // Un-bright white, compatible with ULAplus colour space (neutral grey)
+
     // RGBA bright
     0x000000ff,
     0x3040ffff,
@@ -22,7 +24,7 @@ const colours = [
 ];
 
 function scale_from_255_to(l, x) {
-    const scaled = Math.round((x * (l+1) / 256))
+    const scaled = Math.round((x * l / 255))
     return Math.min(Math.max(0, scaled), l)
 }
 
@@ -38,38 +40,38 @@ function rgba32_to_grb8(rgba) {
     return (g3 << 5) | (r3 << 2) | (b2 << 0)
 }
 
+function rgbaFromGrb8(grb8) {
+    const g3 = (grb8 >> 5) & 7;
+    const r3 = (grb8 >> 2) & 7;
+    const b2 = (grb8 >> 0) & 3;
+    const b3 = (b2 << 1) + (b2 === 0 ? 0 : 1)
+
+    stdout.write(`${r3} ${g3} ${r3}\r`)
+    return (
+        (((r3 << 21) | (r3 << 18) | (r3 << 15)) & 0xff0000) |
+        (((g3 << 13) | (g3 << 10) | (g3 << 7)) & 0x00ff00) |
+        (((b3 << 5) | (b3 << 2) | (b3 >>> 1)) & 0x0000ff)) * 256 + 255;
+}
+
 function hex8(byte) {
     const s = byte.toString(16)
     return (s.length == 1) ? '0'+s : s
 }
-/*
+
+const screenPalette = colours.map(rgba => rgba32_to_grb8(rgba))
+
 stdout.write('[');
 let addComma = false;
-for(const rgba of colours) {
+for(const byte of screenPalette) {
     if (addComma) stdout.write(', ')
-    const byte = rgba32_to_grb8(rgba)
     stdout.write('0x' + hex8(byte))
     addComma = true;
 }
 stdout.write('];\n')
-*/
 
-stdout.write(`${(7 << 29).toString(16)}\n`)
-
-const standardPalette = [0x00, 0x47, 0x58, 0x5b, 0xc8, 0xcf, 0xdc, 0xdb, 0x00, 0x4b, 0x5d, 0x9f, 0xec, 0xef, 0xfd, 0xff];
-for(const grb of standardPalette) {
+/*
+// Uncomment to try it in reverse:
+for(const grb of screenPalette) {
     stdout.write(`${grb.toString(16)} => ${rgbaFromGrb8(grb).toString(16)}\n`)
 }
-
- function   rgbaFromGrb8(grb8) {
-        const g3 = (grb8 >> 5) & 7;
-        const r3 = (grb8 >> 2) & 7;
-        const b2 = (grb8 >> 0) & 3;
-        const b3 = (b2 << 1) + (b2 === 0 ? 0 : 1)
-
-        stdout.write(`${r3} ${g3} ${r3}\r`)
-        return (
-            (((r3 << 21) | (r3 << 18) | (r3 << 15)) & 0xff0000) |
-            (((g3 << 13) | (g3 << 10) | (g3 << 7)) & 0x00ff00) |
-            (((b3 << 5) | (b3 << 2) | (b3 >>> 1)) & 0x0000ff)) * 256 + 255;
-    }
+*/
