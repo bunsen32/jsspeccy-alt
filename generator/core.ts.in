@@ -308,6 +308,10 @@ export function reset():void {
     halted = false;
     opcodePrefix = 0;
     framebufferIndex = 0;
+    ulaPlusPaletteMode = 0
+    for(let i = 0; i < 64; i++) {
+        ulaPlusPalette[i] = 0;
+    }
 }
 setMachineType(48);
 
@@ -584,11 +588,11 @@ export function writePort(addr:u16, val:u8):void {
 
         switch(ulaPlusSelectedGroup) {
             case ULAPLUS_MODE_GROUP:
-                updateFramebuffer();  // So that (in future) dynamic palette switching works.
+                updateFramebuffer();  // So that dynamic palette switching works.
                 ulaPlusPaletteMode = (val & 1) != 0;
                 break;
             case ULAPLUS_PALETTE_GROUP:
-                updateFramebuffer();  // So that (in future) dynamic palette switching works.
+                updateFramebuffer();  // So that dynamic palette switching works.
                 ulaPlusPalette[ulaPlusSelectedSubgroup] = val;
                 break;
             default:
@@ -626,11 +630,14 @@ function updateFramebuffer():void {
     /* process all of the screen bytes that are due up to the current tstate */
     const screenBaseAddr:u32 = screenPageIndex << 14;
 
+    const isUlaPlusPalette = ulaPlusEnabled && ulaPlusPaletteMode;
+    const border = isUlaPlusPalette ? ulaPlusPalette[borderColour + 0x08] : standardPalette[borderColour];
+
     // end marker is 0xffffffff, which will always be greater than t
     while (screenEvents[screenEventPointer] <= t) {
         const addressWord:u32 = screenEvents[screenEventPointer + 1];
         if (addressWord == 0xffffffff) {
-            frameBuffer[framebufferIndex++] = standardPalette[borderColour];
+            frameBuffer[framebufferIndex++] = border;
             floatingBusValue = 0xff;
         } else {
             const screenAddr:u32 = screenBaseAddr | (addressWord & 0xffff);
@@ -641,13 +648,20 @@ function updateFramebuffer():void {
                 const attr:u8 = machineMemory[attributeAddr + i];
 
                 let ink:u8, paper:u8;
-                if ((attr & 0x80) && (flashPhase & 0x10)) {
-                    // reverse ink and paper
-                    paper = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
-                    ink = standardPalette[(attr & 0x78) >> 3];
+                if (isUlaPlusPalette) {
+                    const quadrant = (attr >> 2) & 0x30;
+                    ink = ulaPlusPalette[quadrant | 0x00 | (attr & 0x07)]
+                    paper = ulaPlusPalette[quadrant | 0x08 | ((attr >> 3) & 0x07)]
+
                 } else {
-                    ink = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
-                    paper = standardPalette[(attr & 0x78) >> 3];
+                    if ((attr & 0x80) && (flashPhase & 0x10)) {
+                        // reverse ink and paper
+                        paper = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
+                        ink = standardPalette[(attr & 0x78) >> 3];
+                    } else {
+                        ink = standardPalette[((attr & 0x40) >> 3) | (attr & 0x07)];
+                        paper = standardPalette[(attr & 0x78) >> 3];
+                    }
                 }
                 frameBuffer[framebufferIndex++] = pixels;
                 frameBuffer[framebufferIndex++] = paper;
