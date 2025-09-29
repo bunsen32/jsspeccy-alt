@@ -544,9 +544,10 @@ export function readPort(addr:u16):u8 {
 }
 
 export function writePort(addr:u16, val:u8):void {
-    /* apply pre-write contention */
     const page:u8 = memoryPageWriteMap[addr >> 14];
-    const addressIsContended:u8 = pageIsContended[page];
+    let addressIsContended:u8 = pageIsContended[page] || addr == 0xff3b;
+
+    /* apply pre-write contention */
     if (addressIsContended) {
         if (loggingEnabled) log(t, 6, addr, 0);
         t += contentionTable[t % frameCycleCount];
@@ -579,7 +580,7 @@ export function writePort(addr:u16, val:u8):void {
         writeAYRegister(selectedAYRegister, val);
 
     } else if (addr == 0xbf3b) {
-        // ULAplus control por (write-only):
+        // ULAplus control port (write-only):
         ulaPlusSelectedGroup = (val >> 6) & 0x3
         ulaPlusSelectedSubgroup = val & 0x3f
 
