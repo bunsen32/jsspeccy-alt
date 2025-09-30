@@ -483,8 +483,10 @@ export function poke(addr:u16, val:u8):void {
 }
 
 export function readPort(addr:u16):u8 {
-    /* apply pre-read contention */
     const page:u8 = memoryPageReadMap[addr >> 14];
+    const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
+
+    /* apply pre-read contention */
     const addressIsContended:u8 = pageIsContended[page];
     if (addressIsContended) {
         if (loggingEnabled) log(t, 6, addr, 0);
@@ -520,7 +522,7 @@ export function readPort(addr:u16):u8 {
     if (loggingEnabled) log(t, 4, addr, result);
 
     /* apply post-read contention */
-    if (addr & 0x0001) {
+    if (addr & 0x0001 && !isUlaPlusPort) {
         if (addressIsContended) {
             if (loggingEnabled) log(t, 6, addr, 0);
             t += contentionTable[t % frameCycleCount];
@@ -545,7 +547,8 @@ export function readPort(addr:u16):u8 {
 
 export function writePort(addr:u16, val:u8):void {
     const page:u8 = memoryPageWriteMap[addr >> 14];
-    let addressIsContended:u8 = pageIsContended[page] || addr == 0xff3b;
+    const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
+    let addressIsContended:u8 = pageIsContended[page];
 
     /* apply pre-write contention */
     if (addressIsContended) {
@@ -603,7 +606,7 @@ export function writePort(addr:u16, val:u8):void {
     }
 
     /* apply post-write contention */
-    if (addr & 0x0001) {
+    if (addr & 0x0001 && !isUlaPlusPort) {
         if (addressIsContended) {
             if (loggingEnabled) log(t, 6, addr, 0);
             t += contentionTable[t % frameCycleCount];
