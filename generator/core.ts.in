@@ -483,11 +483,13 @@ export function poke(addr:u16, val:u8):void {
 }
 
 export function readPort(addr:u16):u8 {
-    const page:u8 = memoryPageReadMap[addr >> 14];
+    const isUlaPort = !(addr & 0x0001)
     const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
 
-    /* apply pre-read contention */
+    const page:u8 = memoryPageReadMap[addr >> 14];
     const addressIsContended:u8 = pageIsContended[page];
+
+    /* apply pre-read contention */
     if (addressIsContended) {
         if (loggingEnabled) log(t, 6, addr, 0);
         t += contentionTable[t % frameCycleCount];
@@ -503,7 +505,7 @@ export function readPort(addr:u16):u8 {
         result = u8(addr >> 8);
     } else {
 
-        if (!(addr & 0x0001)) {
+        if (isUlaPort) {
             /* poll keyboard */
             result = pollKeyboard(u8(addr >> 8));
             updateTapePulses(t);
@@ -522,23 +524,23 @@ export function readPort(addr:u16):u8 {
     if (loggingEnabled) log(t, 4, addr, result);
 
     /* apply post-read contention */
-    if (addr & 0x0001 && !isUlaPlusPort) {
-        if (addressIsContended) {
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-        } else {
-            t += 3;
-        }
-    } else {
+    if (isUlaPort || isUlaPlusPort) {
         if (loggingEnabled) log(t, 6, addr, 0);
         t += contentionTable[t % frameCycleCount];
+        t += 3;
+
+    } else if (addressIsContended) {
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+        
+    } else {
         t += 3;
     }
 
@@ -546,11 +548,13 @@ export function readPort(addr:u16):u8 {
 }
 
 export function writePort(addr:u16, val:u8):void {
-    const page:u8 = memoryPageWriteMap[addr >> 14];
+    const isUlaPort = !(addr & 0x0001)
     const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
-    let addressIsContended:u8 = pageIsContended[page];
 
-    /* apply pre-write contention */
+    const page:u8 = memoryPageReadMap[addr >> 14];
+    const addressIsContended:u8 = pageIsContended[page];
+
+    /* apply pre-read contention */
     if (addressIsContended) {
         if (loggingEnabled) log(t, 6, addr, 0);
         t += contentionTable[t % frameCycleCount];
@@ -558,12 +562,13 @@ export function writePort(addr:u16, val:u8):void {
     t++;
 
     if (loggingEnabled) log(t, 5, addr, val);
-    if (!(addr & 0x0001)) {
+    if (isUlaPort) {
         /* border colour / speaker */
         updateFramebuffer();  // apply all screen upates up to this point
         updateAudioBuffer(t);
         borderColour = val & 0x07;
         speakerState = (val & 0x10) >> 4;
+
     } else if (!(addr & 0x8002)) {
         /* 128/+2 paging */
         if (!pagingLocked) {
@@ -606,26 +611,25 @@ export function writePort(addr:u16, val:u8):void {
     }
 
     /* apply post-write contention */
-    if (addr & 0x0001 && !isUlaPlusPort) {
-        if (addressIsContended) {
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-            if (loggingEnabled) log(t, 6, addr, 0);
-            t += contentionTable[t % frameCycleCount];
-            t++;
-        } else {
-            t += 3;
-        }
-    } else {
+    if (isUlaPort || isUlaPlusPort) {
         if (loggingEnabled) log(t, 6, addr, 0);
         t += contentionTable[t % frameCycleCount];
         t += 3;
-    }
 
+    } else if (addressIsContended) {
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+        if (loggingEnabled) log(t, 6, addr, 0);
+        t += contentionTable[t % frameCycleCount];
+        t++;
+
+    } else {
+        t += 3;
+    }
 }
 
 let screenEventPointer:u32 = 0;
