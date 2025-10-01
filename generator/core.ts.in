@@ -512,6 +512,24 @@ export function readPort(addr:u16):u8 {
             result |= tapeLevel;
         } else if ((addr & 0xc002) == 0xc000) {
             result = readAYRegister(selectedAYRegister);
+
+        } else if (isUlaPlusPort) {
+            if (addr == 0xff3b) {
+                // ULAplus data port:
+
+                switch(ulaPlusSelectedGroup) {
+                    case ULAPLUS_MODE_GROUP:
+                        result = ulaPlusPaletteMode ? 1 : 0;
+                        break;
+                    case ULAPLUS_PALETTE_GROUP:
+                        result = ulaPlusPalette[ulaPlusSelectedSubgroup];
+                        break;
+                    default:
+                        // Do nothing
+                        break;
+                }
+            }
+
         } else if (!(addr & 0x00e0)) {
             /* kempston joystick */
             result = 0;
