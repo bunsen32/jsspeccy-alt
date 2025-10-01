@@ -484,7 +484,7 @@ export function poke(addr:u16, val:u8):void {
 
 export function readPort(addr:u16):u8 {
     const isUlaPort = !(addr & 0x0001)
-    const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
+    const isUlaPlusPort = ulaPlusEnabled && (addr == 0xff3b || addr == 0xbf3b)
 
     const page:u8 = memoryPageReadMap[addr >> 14];
     const addressIsContended:u8 = pageIsContended[page];
@@ -549,7 +549,7 @@ export function readPort(addr:u16):u8 {
 
 export function writePort(addr:u16, val:u8):void {
     const isUlaPort = !(addr & 0x0001)
-    const isUlaPlusPort = addr == 0xff3b || addr == 0xbf3b
+    const isUlaPlusPort = ulaPlusEnabled && (addr == 0xff3b || addr == 0xbf3b)
 
     const page:u8 = memoryPageReadMap[addr >> 14];
     const addressIsContended:u8 = pageIsContended[page];
@@ -587,26 +587,28 @@ export function writePort(addr:u16, val:u8):void {
         updateAudioBuffer(t);
         writeAYRegister(selectedAYRegister, val);
 
-    } else if (addr == 0xbf3b) {
-        // ULAplus control port (write-only):
-        ulaPlusSelectedGroup = (val >> 6) & 0x3
-        ulaPlusSelectedSubgroup = val & 0x3f
+    } else if (isUlaPlusPort) {
+        if (addr == 0xbf3b) {
+            // ULAplus control port (write-only):
+            ulaPlusSelectedGroup = (val >> 6) & 0x3
+            ulaPlusSelectedSubgroup = val & 0x3f
 
-    } else if (addr == 0xff3b) {
-        // ULAplus data port:
+        } else {
+            // ULAplus data port:
 
-        switch(ulaPlusSelectedGroup) {
-            case ULAPLUS_MODE_GROUP:
-                updateFramebuffer();  // So that dynamic palette switching works.
-                ulaPlusPaletteMode = (val & 1) != 0;
-                break;
-            case ULAPLUS_PALETTE_GROUP:
-                updateFramebuffer();  // So that dynamic palette switching works.
-                ulaPlusPalette[ulaPlusSelectedSubgroup] = val;
-                break;
-            default:
-                // Do nothing
-                break;
+            switch(ulaPlusSelectedGroup) {
+                case ULAPLUS_MODE_GROUP:
+                    updateFramebuffer();  // So that dynamic palette switching works.
+                    ulaPlusPaletteMode = (val & 1) != 0;
+                    break;
+                case ULAPLUS_PALETTE_GROUP:
+                    updateFramebuffer();  // So that dynamic palette switching works.
+                    ulaPlusPalette[ulaPlusSelectedSubgroup] = val;
+                    break;
+                default:
+                    // Do nothing
+                    break;
+            }
         }
     }
 

@@ -198,6 +198,9 @@ onmessage = (e) => {
         case 'setMachineType':
             core.setMachineType(e.data.type);
             break;
+        case 'setUlaPlusEnabled':
+            core.setUlaPlusEnabled(e.data.value);
+            break;
         case 'reset':
             core.reset();
             break;
