@@ -373,11 +373,22 @@ export function getHalted():bool {
 export function setTapeTraps(val:bool):void {
     tapeTrapsEnabled = val;
 }
+
 export function getUlaPlusEnabled():bool {
     return ulaPlusEnabled
 }
 export function setUlaPlusEnabled(val:bool):void {
     ulaPlusEnabled = val;
+}
+export function getUlaPlusPaletteMode():bool {
+    return ulaPlusPaletteMode;
+}
+export function setUlaPlusPaletteMode(val:bool):void {
+    ulaPlusPaletteMode = val;
+}
+export function setUlaPlusGroupAndSubgroup(group:u8, subgroup:u8):void {
+    ulaPlusSelectedGroup = group & 3;
+    ulaPlusSelectedSubgroup = subgroup & 0x3f;
 }
 
 function log(time:u32, type:u16, addr:u16, val:u8):void {
