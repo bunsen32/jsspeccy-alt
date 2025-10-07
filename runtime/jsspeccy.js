@@ -40,7 +40,7 @@ class Emulator extends EventEmitter {
         this.tapeAutoLoadMode = opts.tapeAutoLoadMode || 'default';  // or usr0
         this.tapeIsPlaying = false;
         this.tapeTrapsEnabled = ('tapeTrapsEnabled' in opts) ? opts.tapeTrapsEnabled : true;
-        this.ulaPlusEnabled = opts.extraFeatures.includes('ulaPlus');
+        this.ulaPlusEnabled = opts.features.includes('ulaplus');
 
         this.msPerFrame = 20;
 
@@ -430,7 +430,7 @@ window.JSSpeccy = (container, opts) => {
         tapeTrapsEnabled: ('tapeTrapsEnabled' in opts) ? opts.tapeTrapsEnabled : true,
         keyboardEnabled: keyboardEnabled,
         keyboardMap: opts.keyboardMap || 'standard',
-        extraFeatures: opts.extraFeatures || ['ulaPlus'],
+        features: opts.features || ['ulaplus'],
     });
     const ui = new UIController(container, emu, {
         zoom: opts.zoom || 1,
