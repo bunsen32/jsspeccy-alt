@@ -96,7 +96,9 @@ let rom1Page:u8 = 9;
 
 let betadiskEnabled:bool = false;
 let betadiskROMActive:bool = false;
-let tapeTrapsEnabled:bool = true;
+let tapeTrapsEnabled:bool = false;
+let tapeTrapsEnabledRom0:bool = false;
+let tapeTrapsEnabledRom1:bool = false;
 
 let i:u8 = 0;
 while (true) {
@@ -276,8 +278,9 @@ export function setMachineType(type:u32):void {
     reset();
 }
 export function reset():void {
-    memoryPageReadMap = [rom0Page, 5, 2, 0];
+    memoryPageReadMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
     memoryPageWriteMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
+    setActiveRom(rom0Page);
     pagingLocked = !hasMemoryPagingHardware;
     if (isTestMachine) {
         // 1212 = test machine type with writeable ROM
@@ -353,8 +356,13 @@ export function setHalted(val:bool):void {
 export function getHalted():bool {
     return halted;
 }
-export function setTapeTraps(val:bool):void {
-    tapeTrapsEnabled = val;
+export function setTapeTraps(rom0:bool, rom1:bool):void {
+    tapeTrapsEnabledRom0 = rom0;
+    tapeTrapsEnabledRom1 = rom1;
+    const currentPage0 = memoryPageReadMap[0];
+    tapeTrapsEnabled =
+        currentPage0 == rom0Page && tapeTrapsEnabledRom0 ||
+        currentPage0 == rom1Page && tapeTrapsEnabledRom1;
 }
 
 function log(time:u32, type:u16, addr:u16, val:u8):void {
@@ -389,6 +397,14 @@ export function getTapePulseBufferTstateCount():u32 {
 export function setTapePulseBufferState(writeIndex: u16, tstateCount:u32):void {
     tapePulseWriteIndex = writeIndex;
     tapePulseBufferTstateCount = tstateCount;
+}
+
+function setActiveRom(page:u8):void {
+    memoryPageReadMap[0] = page;
+    const currentPage0 = memoryPageReadMap[0];
+    tapeTrapsEnabled =
+        currentPage0 == rom0Page && tapeTrapsEnabledRom0 ||
+        currentPage0 == rom1Page && tapeTrapsEnabledRom1;
 }
 
 function readMem(addr:u16):u8 {
@@ -546,7 +562,7 @@ export function writePort(addr:u16, val:u8):void {
             memoryPageReadMap[3] = val & 0x07;
             memoryPageWriteMap[3] = val & 0x07;
             screenPageIndex = (val & 0x08) ? 7 : 5;
-            memoryPageReadMap[0] = (val & 0x10) ? rom1Page : rom0Page;
+            setActiveRom((val & 0x10) ? rom1Page : rom0Page);
             pagingLocked = bool(val & 0x20);
         }
     } else if ((addr & 0xc002) == 0xc000) {
@@ -864,7 +880,6 @@ export function runUntil(maxT:u32):i16 {
 
         if (
             (pc == 0x056b || pc == 0x0111)
-            && (memoryPageReadMap[0] == rom1Page) // 48K spectrum has identical rom1Page & rom0Page
             && tapeTrapsEnabled && willTrap
         ) {
             // tape loading trap
@@ -875,10 +890,10 @@ export function runUntil(maxT:u32):i16 {
         if (betadiskEnabled) {
             if ((pc & 0xff00) == 0x3d00 && !betadiskROMActive && memoryPageReadMap[0] == rom1Page) {
                 betadiskROMActive = true;
-                memoryPageReadMap[0] = ROM_PAGE_DOS;
+                setActiveRom(ROM_PAGE_DOS);
             } else if (pc >= 0x4000 && betadiskROMActive) {
                 betadiskROMActive = false;
-                memoryPageReadMap[0] = rom1Page;
+                setActiveRom(rom1Page);
             }
         }
 

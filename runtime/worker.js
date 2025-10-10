@@ -11,6 +11,8 @@ let tapePulses = null;
 let stopped = false;
 let tape = null;
 let tapeIsPlaying = false;
+let romPageContainingTapeCode = -1;
+let tapeTrapsEnabled = true;
 
 const loadCore = (baseUrl) => {
     WebAssembly.instantiateStreaming(
@@ -34,7 +36,7 @@ const loadMemoryPage = (page, data) => {
 };
 
 const loadSnapshot = (snapshot) => {
-    core.setMachineType(snapshot.model);
+    setMachineType(snapshot.model);
     for (let page in snapshot.memoryPages) {
         loadMemoryPage(page, snapshot.memoryPages[page]);
     }
@@ -56,6 +58,33 @@ const loadSnapshot = (snapshot) => {
 
     core.setTStates(snapshot.tstates);
 };
+
+const setTapeTrapsEnabled = (isEnabled) => {
+    tapeTrapsEnabled = isEnabled;
+    core.setTapeTraps(
+        romPageContainingTapeCode == 0 && tapeTrapsEnabled,
+        romPageContainingTapeCode == 1 && tapeTrapsEnabled)
+}
+
+const setMachineType = (modelCode) => {
+    core.setMachineType(modelCode);
+    switch (modelCode) {
+        case 48:
+        case 1221:
+            romPageContainingTapeCode = 0;
+            break;
+        case 5:
+            romPageContainingTapeCode = 1;
+            break;
+        case 128:
+            romPageContainingTapeCode = 1;
+            break;
+        default:
+            romPageContainingTapeCode = -1;
+            console.error('Unrecognised machine type:', modelCode);
+    }
+    setTapeTrapsEnabled(tapeTrapsEnabled)
+}
 
 const trapTapeLoad = () => {
     if (!tape) return;
@@ -196,7 +225,7 @@ onmessage = (e) => {
             core.keyUp(e.data.row, e.data.mask);
             break;
         case 'setMachineType':
-            core.setMachineType(e.data.type);
+            setMachineType(e.data.type);
             break;
         case 'reset':
             core.reset();
@@ -248,7 +277,7 @@ onmessage = (e) => {
             }
             break;
         case 'setTapeTraps':
-            core.setTapeTraps(e.data.value);
+            setTapeTrapsEnabled(e.data.value);
             break;
         default:
             console.log('message received by worker:', e.data);
