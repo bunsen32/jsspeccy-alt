@@ -1,23 +1,23 @@
 #alloc frameBuffer[0x6600]: u8
 export const FRAME_BUFFER:usize = (&frameBuffer);
 
-// allocate memory for 8 RAM, 8 ROM pages
+// allocate memory for 8 RAM, 4 ROM pages
 // 0..7 - 128K RAM pages;
-// 8 = Primary ROM, 9 = Secondary ROM
-// 10 = (unused), 11 = scratch area for ROM writes
-// 12 = (unused)
-// 13 = TRDOS rom
-#alloc machineMemory[0x40000]: u8
+// 8 = Primary ROM
+// 9 = Secondary ROM
+// 10 = TRDOS ROM
+// 11 = scratch area for ROM writes
+#alloc machineMemory[0x30000]: u8
 export const MACHINE_MEMORY:usize = (&machineMemory);
 
 #alloc memoryPageReadMap[4]: u8
 #alloc memoryPageWriteMap[4]: u8
 export const MEMORY_PAGE_READ_MAP:usize = (&memoryPageReadMap);
 export const MEMORY_PAGE_WRITE_MAP:usize = (&memoryPageWriteMap);
-#const ROM_PAGE_0 8
-#const ROM_PAGE_1 9
-#const ROM_PAGE_SCRATCH 11
-#const ROM_PAGE_DOS 13
+export const ROM_PAGE_0:u8 = 8;
+export const ROM_PAGE_1:u8 = 9;
+export const ROM_PAGE_DOS:u8 = 10;
+export const ROM_PAGE_SCRATCH:u8 = 11;
 
 #alloc pageIsContended[12]: u8
 pageIsContended = [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0];

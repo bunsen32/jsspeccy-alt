@@ -99,9 +99,9 @@ const setMachineType = (modelCode) => {
 }
 
 const setRoms = (rom0Name, rom1Name, dosRomName) => {
-    loadMemoryPage(8, roms[rom0Name] || emptyRomPage)
-    loadMemoryPage(9, roms[rom1Name] || emptyRomPage)
-    loadMemoryPage(13, roms[dosRomName] || emptyRomPage)
+    loadMemoryPage(core.ROM_PAGE_0, roms[rom0Name] || emptyRomPage)
+    loadMemoryPage(core.ROM_PAGE_1, roms[rom1Name] || emptyRomPage)
+    loadMemoryPage(core.ROM_PAGE_DOS, roms[dosRomName] || emptyRomPage)
 }
 
 const trapTapeLoad = () => {
