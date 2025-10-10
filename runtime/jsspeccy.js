@@ -17,6 +17,7 @@ import fullscreenIcon from './icons/fullscreen.svg';
 import exitFullscreenIcon from './icons/exitfullscreen.svg';
 import tapePlayIcon from './icons/tape_play.svg';
 import tapePauseIcon from './icons/tape_pause.svg';
+import { ROM_128K_0, ROM_128K_1, ROM_48K, ROM_BetaDisk, ROM_Pentagon_0 } from './constants.js';
 
 const scriptUrl = document.currentScript.src;
 
@@ -183,11 +184,11 @@ class Emulator extends EventEmitter {
     }
 
     async fetchRoms() {
-        await this.fetchRom('128K_0', 'roms/128-0.rom');
-        await this.fetchRom('128K_1', 'roms/128-1.rom');
-        await this.fetchRom('48K', 'roms/48.rom');
-        await this.fetchRom('Pentagon_0', 'roms/pentagon-0.rom');
-        await this.fetchRom('BetaDisk', 'roms/trdos.rom');
+        await this.fetchRom(ROM_128K_0, 'roms/128-0.rom');
+        await this.fetchRom(ROM_128K_1, 'roms/128-1.rom');
+        await this.fetchRom(ROM_48K, 'roms/48.rom');
+        await this.fetchRom(ROM_Pentagon_0, 'roms/pentagon-0.rom');
+        await this.fetchRom(ROM_BetaDisk, 'roms/trdos.rom');
     }
 
     runFrame() {

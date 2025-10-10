@@ -1,4 +1,4 @@
-import { FRAME_BUFFER_SIZE } from './constants.js';
+import { FRAME_BUFFER_SIZE, ROM_128K_0, ROM_128K_1, ROM_48K, ROM_BetaDisk, ROM_Pentagon_0 } from './constants.js';
 import { TAPFile, TZXFile } from './tape.js';
 
 let core = null;
@@ -16,11 +16,6 @@ let tapeTrapsEnabled = true;
 
 const PAGE_SIZE = 16 * 1024;
 let roms = {};
-roms['48K'] = undefined;
-roms['128K_0'] = undefined;
-roms['128K_1'] = undefined;
-roms['Pentagon_0'] = undefined;
-roms['BetaDisk'] = undefined;
 let emptyRomPage = new ArrayBuffer(PAGE_SIZE);
 
 const loadCore = (baseUrl) => {
@@ -80,15 +75,15 @@ const setMachineType = (modelCode) => {
     switch (modelCode) {
         case 48:
         case 1221:
-            setRoms('48K');
+            setRoms(ROM_48K);
             romPageContainingTapeCode = 0;
             break;
         case 5:
-            setRoms('Pentagon_0', '128K_1', 'BetaDisk');
+            setRoms(ROM_Pentagon_0, ROM_128K_1, ROM_BetaDisk);
             romPageContainingTapeCode = 1;
             break;
         case 128:
-            setRoms('128K_0', '128K_1');
+            setRoms(ROM_128K_0, ROM_128K_1);
             romPageContainingTapeCode = 1;
             break;
         default:
