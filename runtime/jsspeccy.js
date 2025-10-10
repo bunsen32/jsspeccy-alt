@@ -55,7 +55,7 @@ class Emulator extends EventEmitter {
         this.worker.onmessage = (e) => {
             switch(e.data.message) {
                 case 'ready':
-                    this.loadRoms().then(() => {
+                    this.fetchRoms().then(() => {
                         this.setMachine(opts.machine || 128);
                         this.setTapeTraps(this.tapeTrapsEnabled);
                         if (opts.openUrl) {
@@ -172,24 +172,23 @@ class Emulator extends EventEmitter {
         }
     }
 
-    async loadRom(url, page) {
+    async fetchRom(romName, url) {
         const response = await fetch(new URL(url, scriptUrl));
         const data = new Uint8Array(await response.arrayBuffer());
         this.worker.postMessage({
-            message: 'loadMemory',
+            message: 'loadRom',
             data,
-            page: page,
+            name: romName,
         });
     }
 
-    async loadRoms() {
-        await this.loadRom('roms/128-0.rom', 8);
-        await this.loadRom('roms/128-1.rom', 9);
-        await this.loadRom('roms/48.rom', 10);
-        await this.loadRom('roms/pentagon-0.rom', 12);
-        await this.loadRom('roms/trdos.rom', 13);
+    async fetchRoms() {
+        await this.fetchRom('128K_0', 'roms/128-0.rom');
+        await this.fetchRom('128K_1', 'roms/128-1.rom');
+        await this.fetchRom('48K', 'roms/48.rom');
+        await this.fetchRom('Pentagon_0', 'roms/pentagon-0.rom');
+        await this.fetchRom('BetaDisk', 'roms/trdos.rom');
     }
-
 
     runFrame() {
         this.isExecutingFrame = true;

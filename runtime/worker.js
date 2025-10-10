@@ -14,6 +14,15 @@ let tapeIsPlaying = false;
 let romPageContainingTapeCode = -1;
 let tapeTrapsEnabled = true;
 
+const PAGE_SIZE = 16 * 1024;
+let roms = {};
+roms['48K'] = undefined;
+roms['128K_0'] = undefined;
+roms['128K_1'] = undefined;
+roms['Pentagon_0'] = undefined;
+roms['BetaDisk'] = undefined;
+let emptyRomPage = new ArrayBuffer(PAGE_SIZE);
+
 const loadCore = (baseUrl) => {
     WebAssembly.instantiateStreaming(
         fetch(new URL('jsspeccy-core.wasm', baseUrl), {})
@@ -71,12 +80,15 @@ const setMachineType = (modelCode) => {
     switch (modelCode) {
         case 48:
         case 1221:
+            setRoms('48K');
             romPageContainingTapeCode = 0;
             break;
         case 5:
+            setRoms('Pentagon_0', '128K_1', 'BetaDisk');
             romPageContainingTapeCode = 1;
             break;
         case 128:
+            setRoms('128K_0', '128K_1');
             romPageContainingTapeCode = 1;
             break;
         default:
@@ -84,6 +96,12 @@ const setMachineType = (modelCode) => {
             console.error('Unrecognised machine type:', modelCode);
     }
     setTapeTrapsEnabled(tapeTrapsEnabled)
+}
+
+const setRoms = (rom0Name, rom1Name, dosRomName) => {
+    loadMemoryPage(8, roms[rom0Name] || emptyRomPage)
+    loadMemoryPage(9, roms[rom1Name] || emptyRomPage)
+    loadMemoryPage(13, roms[dosRomName] || emptyRomPage)
 }
 
 const trapTapeLoad = () => {
@@ -229,6 +247,9 @@ onmessage = (e) => {
             break;
         case 'reset':
             core.reset();
+            break;
+        case 'loadRom':
+            roms[e.data.name] = e.data.data
             break;
         case 'loadMemory':
             loadMemoryPage(e.data.page, e.data.data);
