@@ -237,7 +237,7 @@ class Emulator extends EventEmitter {
     };
 
     setMachine(type) {
-        if (type != 128 && type != 5) type = 48;
+        if (type !== 128 && type !== 5 && type !== 16) type = 48;
         this.worker.postMessage({
             message: 'setMachineType',
             type,
@@ -483,6 +483,10 @@ window.JSSpeccy = (container, opts) => {
         updateTapeTrapsCheckbox();
 
         const machineMenu = ui.menuBar.addMenu('Machine');
+        const machine16Item = machineMenu.addItem('Spectrum 16K', () => {
+            emu.setMachine(16);
+            emu.focus();
+        });
         const machine48Item = machineMenu.addItem('Spectrum 48K', () => {
             emu.setMachine(48);
             emu.focus();
@@ -527,19 +531,10 @@ window.JSSpeccy = (container, opts) => {
         setZoomCheckbox(ui.zoom);
 
         emu.on('setMachine', (type) => {
-            if (type == 48) {
-                machine48Item.setBullet();
-                machine128Item.unsetBullet();
-                machinePentagonItem.unsetBullet();
-            } else if (type == 128) {
-                machine48Item.unsetBullet();
-                machine128Item.setBullet();
-                machinePentagonItem.unsetBullet();
-            } else { // pentagon
-                machine48Item.unsetBullet();
-                machine128Item.unsetBullet();
-                machinePentagonItem.setBullet();
-            }
+            machine16Item.setBulletIf(type === 16);
+            machine48Item.setBulletIf(type === 48);
+            machine128Item.setBulletIf(type === 128);
+            machinePentagonItem.setBulletIf(type === 5);
         });
 
         if (!opts.sandbox) {
