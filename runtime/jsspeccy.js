@@ -51,6 +51,7 @@ class Emulator extends EventEmitter {
         this.tapeAutoLoadMode = opts.tapeAutoLoadMode || 'default';  // or usr0
         this.tapeIsPlaying = false;
         this.tapeTrapsEnabled = ('tapeTrapsEnabled' in opts) ? opts.tapeTrapsEnabled : true;
+        this.ulaPlusEnabled = opts.features.includes('ulaplus');
 
         this.msPerFrame = 20;
 
@@ -68,6 +69,7 @@ class Emulator extends EventEmitter {
                 case 'ready':
                     this.fetchRoms({...romUrls, ...opts.roms}).then(() => {
                         this.setMachine(opts.machine || 128);
+                        this.setUlaPlusEnabled(this.ulaPlusEnabled)
                         this.setTapeTraps(this.tapeTrapsEnabled);
                         if (opts.openUrl) {
                             this.openUrlList(opts.openUrl).catch(err => {
@@ -244,6 +246,14 @@ class Emulator extends EventEmitter {
         });
         this.machineType = type;
         this.emit('setMachine', type);
+    }
+
+    setUlaPlusEnabled(isEnabled) {
+        this.worker.postMessage({
+            message: 'setUlaPlusEnabled',
+            value: isEnabled,
+        });
+        this.ulaPlusEnabled = isEnabled;
     }
 
     reset() {
@@ -428,6 +438,7 @@ window.JSSpeccy = (container, opts) => {
         tapeTrapsEnabled: ('tapeTrapsEnabled' in opts) ? opts.tapeTrapsEnabled : true,
         keyboardEnabled: keyboardEnabled,
         keyboardMap: opts.keyboardMap || 'standard',
+        features: opts.features || ['ulaplus'],
         roms: opts.roms || {},
     });
     const ui = new UIController(container, emu, {
