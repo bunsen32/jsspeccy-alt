@@ -204,6 +204,16 @@ function clearContentionTable(frameCycleCount:u32):void {
 }
 
 
+function missingRam(pageSlot:u8):void {
+    const pageStart:u32 = memoryPageReadMap[pageSlot] * 0x4000;
+    for (let p:u32 = pageStart, n:u16 = 0x4000; n > 0; n--,p++) {
+        machineMemory[p] = 255;
+    }
+    // Mark page as not-writeable:
+    memoryPageWriteMap[pageSlot] = ROM_PAGE_SCRATCH;
+}
+
+
 let frameCycleCount:u32 = 69888;
 let screenPageIndex:u32 = 5;
 let pagingLocked:bool = 0;
@@ -236,17 +246,19 @@ let logPtr = 0;
 let isTestMachine:bool = 0;
 let hasFloatingBus:bool = 0;
 let hasMemoryPagingHardware:bool = 0;
+let installedRam = 48;
 
 export function setMachineType(type:u32):void {
     isTestMachine = (type == 1212);
-    if (type == 48 || isTestMachine) {
+    if (type == 48 || type == 16 || isTestMachine) {
         frameCycleCount = 69888;
         recalculateAYCyclesPerSample();
         buildScreenEventsTable(14335, 224, 0xfc);
         buildContentionTable(14335, 224, frameCycleCount);
         hasMemoryPagingHardware = false;
         betadiskEnabled = false;
-        hasFloatingBus = (type == 48);
+        hasFloatingBus = !isTestMachine;
+        installedRam = (type == 16) ? 16 : 48;
 
     } else if (type == 5) {  // pentagon
         frameCycleCount = 71680;
@@ -257,6 +269,7 @@ export function setMachineType(type:u32):void {
         betadiskEnabled = true;
         betadiskROMActive = false;
         hasFloatingBus = false;
+        installedRam = 128;
 
     } else {  // 128
         frameCycleCount = 70908;
@@ -266,6 +279,7 @@ export function setMachineType(type:u32):void {
         hasMemoryPagingHardware = true;
         betadiskEnabled = false;
         hasFloatingBus = true;
+        installedRam = 128;
     }
     reset();
 }
@@ -273,11 +287,15 @@ export function reset():void {
     memoryPageReadMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
     memoryPageWriteMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
     setActiveRom(ROM_PAGE_0);
+    if (installedRam < 48) missingRam(3);
+    if (installedRam < 32) missingRam(2);
+    if (installedRam < 16) missingRam(1);
     pagingLocked = !hasMemoryPagingHardware;
     if (isTestMachine) {
         // 1212 = test machine type with writeable ROM
         memoryPageWriteMap[0] = ROM_PAGE_0;
     }
+
     for (let i:u8 = 0; i < 14; i++) {
         writeAYRegister(i, 0);
     }

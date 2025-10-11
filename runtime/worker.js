@@ -73,6 +73,7 @@ const setTapeTrapsEnabled = (isEnabled) => {
 const setMachineType = (modelCode) => {
     core.setMachineType(modelCode);
     switch (modelCode) {
+        case 16:
         case 48:
         case 1221:
             setRoms(ROM_48K);
