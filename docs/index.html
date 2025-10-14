@@ -3,19 +3,23 @@
     <head>
         <title>JSSpeccy v3</title>
         <script src="jsspeccy/jsspeccy.js"></script>
-        <style>
-            body {
-                background-color: #444;
-            }
-            #jsspeccy {
-                width: 640px;
-                margin: auto;
-                background-color: white;
-            }
-        </style>
+        <link rel="stylesheet" href="./style.css" />
     </head>
     <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {zoom: 2, sandbox: false})">
-        <div id="jsspeccy"></div>
+        <nav>
+            <ul>
+                <li class="active"><a href="">48K</a></li>
+                <li><a href="">16K</a></li>
+                <li><a href="">128K</a></li>
+                <li><a href="">Pentagon</a></li>
+                <li><a href="">ULA+</a></li>
+                <li><a href="">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 1</h1>
+        <h2>ZX Spectrum 48K</h2>
+
+        <div class="emulator" id="jsspeccy"></div>
 
         Here is JSSpeccy (alt) running in GitHub pages.
     </body>
