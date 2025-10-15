@@ -1,5 +1,5 @@
 html {
-	background: #222 100% 100%/ 80px 160px no-repeat url('./rainbow.png');
+	background: #181830 100% 100%/ 100px 200px no-repeat url('./rainbow.png');
 	min-height:100%;
 }
 
@@ -33,10 +33,14 @@ h2 {
 	font-size: 1.8rem;
 }
 
+p {
+	line-height: 1.5;
+}
+
 nav ul {
 	list-style: none;
 	display:block;
-	margin:0 0 1em;
+	margin:0 0 2em;
 	padding:0;
 }
 nav ul li {
@@ -45,9 +49,12 @@ nav ul li {
 	margin:0;
 	padding:0.5em 0.5em;
 }
+nav ul li.title {
+	padding-left:0;
+}
 
 nav li.active {
-	background:#aaa;
+	background:#eee;
 	color:#000;
 	border-radius: 0 0 10px 10px;
 }
@@ -60,6 +67,23 @@ nav li.active a {
 .emulator {
 	width:640px;
 	height:auto;
-	margin: 20px auto;
+	margin: 20px -24px;
 	background-color: white;
+	border: 24px solid black;
+	border-radius:32px;
+}
+.emulator canvas {
+	border-radius: 9px;
+}
+
+blockquote.example {
+	background: #151520;
+	margin:0 -16px;
+	padding:1ex 24px;
+}
+
+footer {
+	font-size:80%;
+	padding: 0.25em 0 0.75em;
+	line-height: 1.5;
 }
