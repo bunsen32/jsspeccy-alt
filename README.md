@@ -1,13 +1,19 @@
-# JSSpeccy 3
+# JSSpeccy-ALT
 
-A ZX Spectrum emulator for the browser
+This is a fork of the wonderful [JSSpeccy3](https://github.com/gasman/jsspeccy3) by Matt Westcott, incorporating a few improvements:
+* User-provided custom ROM images
+* 16&nbsp;KB RAM emulation
+* ULAplus support
+
+I’m planning to maintain this fork for as long as I need it (until/unless all of these features get merged back into the original project).
 
 ## Features
 
-* Emulates the Spectrum 48K, Spectrum 128K and Pentagon machines
+* Emulates the Spectrum 16K/48K, Spectrum 128K and Pentagon machines
 * Handles all Z80 instructions, documented and undocumented
 * Cycle-accurate emulation of scanline / multicolour effects
 * AY and beeper audio
+* ULAplus colour palette mode
 * Loads SZX, Z80 and SNA snapshots
 * Loads TZX and TAP tape images (via traps only)
 * Loads any of the above files from inside a ZIP file
@@ -23,9 +29,11 @@ These days, releasing open source code tends to come with an unspoken social con
 
 This is a personal project, created for my own enjoyment, and my act of publishing the code does not come with any commitment to provide technical support or assistance. I'm always happy to hear of other people getting similar enjoyment from hacking on the code, and pull requests are welcome, but I can't promise to review them or shepherd them into an "official" release on any sort of timescale. Managing external contributions is often the point at which a "fun" project stops being fun. If there's a feature you need in the project - feel free to fork.
 
+\[These are Matt Westcott’s words… but the same applies to me, and to this fork!\]
+
 ## Embedding
 
-JSSpeccy 3 is designed with embedding in mind. To include it in your own site, download [a release archive](https://github.com/gasman/jsspeccy3/releases) and copy the contents of the `jsspeccy` folder somewhere web-accessible. Be sure to keep the .js and .wasm files and the subdirectories in the same place relative to jsspeccy.js.
+JSSpeccy 3 is designed with embedding in mind. To include it in your own site, download [a release archive](https://github.com/bunsen32/jsspeccy-alt/releases) and copy the contents of the `jsspeccy` folder somewhere web-accessible. Be sure to keep the .js and .wasm files and the subdirectories in the same place relative to jsspeccy.js.
 
 In the `<head>` of your HTML page, include the tag
 
@@ -56,9 +64,9 @@ The available configuration options are:
 * `machine`: specifies the machine to emulate. Can be `16` (for a 16K Spectrum), `48` (for a 48K Spectrum), `128` (for a 128K Spectrum), or `5` (for a Pentagon 128).
 * `openUrl`: specifies a URL, or an array of URLs, to a file (or files) to load on startup, in any supported snapshot, tape or archive format. Standard browser security restrictions apply for loading remote files: if the URL being loaded is not on the same domain as the calling page, it must serve [CORS HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to be loadable.
 * `roms`: a JS struct which provides an optional map of logical ROM names to ROM file URLs. (May be omitted or partial.) The keys are listed below, and each value is a URL (CORS comments above apply here too). JSSpeccy3 has default values for each of these:
-   * `Spectrum48K`: Single 16K ROM used when machine type is `48`
+   * `Spectrum48K`: Single 16K ROM used when machine type is `16` or `48`
    * `Spectrum128K_0` & `Spectrum128K_1`: The two ROMs to use when machine type is `128`
-   * `Pentagon_0`: The first ROM to use when machine type is `5`. (The Pentagon also uses `Spectrum128K_1` as its second ROM.)
+   * `Pentagon_0`: The first ROM to use when machine type is `5`. (The Pentagon uses `Spectrum128K_1` as its second ROM.)
    * `BetaDisk`: The TRDOS ROM to use when machine type is `5`, and the BetaDisk ROM is paged in.
 * `zoom`: specifies the size of the emulator window; 1 for 100% size (one Spectrum pixel per screen pixel), 2 for 200% size and so on.
 * `sandbox`: if true, all UI options for opening a new file are disabled - useful if you're showcasing a specific bit of Spectrum software on your page.
@@ -91,4 +99,4 @@ For additional JavaScript hackery, the return value of the JSSpeccy function cal
 
 ## Licence
 
-JSSpeccy 3 is licensed under the GPL version 3 - see COPYING.
+JSSpeccy-ALT is licensed under the GPL version 3 - see COPYING.
