@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>128KB | JSSpeccy-ALT</title>
+        <script src="jsspeccy/jsspeccy.js"></script>
+        <link rel="stylesheet" href="./style.css?4" />
+    </head>
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {uiEnabled:true, zoom: 2, autoStart: false,machine:128})">
+        <nav>
+            <ul>
+                <li class="title">JSSpeccy-ALT</li>
+                <li><a href="./">16K</a></li>
+                <li><a href="48k">48K</a></li>
+                <li class="active"><a href="128k">128K</a></li>
+                <li><a href="pentagon">Pentagon</a></li>
+                <li><a href="ulaplus">ULA+</a></li>
+                <li><a href="manual">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 3</h1>
+        <h2>ZX Spectrum 128</h2>
+
+        <p>
+            In 1985 and ’86, Sinclair Research and Investrónica released the ZX Spectrum 128 in Spain, then (later) the UK. In addition to
+            having more memory, the machine featured more advanced audio, an RS232 serial port, support for faster video screen switching,
+            and a proper keyboard.
+        </p>
+        <p>
+            Today, the 128&nbsp;KB model is a standard in the Speccy demo &amp; homebrew scene.
+        </p>
+
+        <div class="emulator" id="jsspeccy"></div>
+
+        <p style="font-style: italic;">Sinclair ZX Spectrum 128K</p>
+
+        <blockquote class="example">
+            <pre><code>// JSSpeccy configuration
+emu = JSSpeccy(
+    document.getElementById('jsspeccy'),
+    {
+        machine: 128,
+        uiEnabled: true,
+        autoStart: false,
+        zoom: 2,
+    })
+</code></pre></blockquote>
+        <p>
+            The configuration above, selects 128 KB Spectrum model (“<code>machine: 128</code>”), with nothing preloaded.
+        </p>
+
+        <hr />
+        <footer>
+            JSSpeccy-ALT documented by Andrew Forrest. Forked from JSSpeccy3 by Matt Westcott.
+            Spectrum firmware orginally &copy;&nbsp;1982 Sinclair Research Ltd, now freely licenced by Amstrad plc.
+        </footer>
+    </body>
+</html>

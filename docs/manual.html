@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Manual | JSSpeccy-ALT</title>
+        <script src="jsspeccy/jsspeccy.js"></script>
+        <link rel="stylesheet" href="./style.css?8" />
+    </head>
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {uiEnabled:true, zoom: 2, autoStart: false,machine:128})">
+        <nav>
+            <ul>
+                <li class="title">JSSpeccy-ALT</li>
+                <li><a href="./">16K</a></li>
+                <li><a href="48k">48K</a></li>
+                <li><a href="128k">128K</a></li>
+                <li><a href="pentagon">Pentagon</a></li>
+                <li><a href="ulaplus">ULA+</a></li>
+                <li class="active"><a href="manual">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 6</h1>
+        <h2>JSSpeccy Manual</h2>
+
+        <p>See also the <a href="https://github.com/bunsen32/jsspeccy-alt/">Github Page</a></p>
+
+        <p>This is a fork of the wonderful <a href="https://github.com/gasman/jsspeccy3">JSSpeccy3</a> by Matt
+            Westcott, incorporating a few improvements:</p>
+        <ul>
+            <li>User-provided custom ROM images</li>
+            <li>16 KB RAM emulation</li>
+            <li>ULAplus support</li>
+        </ul>
+        <p>I’m planning to maintain this fork for as long as I need it (until/unless I’m finished adding new features, and all of these features get merged
+            back into the original project).</p>
+        <div class="markdown-heading">
+            <h2 tabindex="-1" class="heading-element">Features</h2><a id="user-content-features" class="anchor"
+                aria-label="Permalink: Features" href="#features"></a>
+        </div>
+        <ul>
+            <li>Emulates the Spectrum 16K/48K, Spectrum 128K and Pentagon machines</li>
+            <li>Handles all Z80 instructions, documented and undocumented</li>
+            <li>Cycle-accurate emulation of scanline / multicolour effects</li>
+            <li>AY and beeper audio</li>
+            <li>ULAplus colour palette mode</li>
+            <li>Loads SZX, Z80 and SNA snapshots</li>
+            <li>Loads TZX and TAP tape images (via traps only)</li>
+            <li>Loads any of the above files from inside a ZIP file</li>
+            <li>100% / 200% / 300% and fullscreen display modes</li>
+        </ul>
+        <div class="markdown-heading">
+            <h2 tabindex="-1" class="heading-element">Implementation notes</h2><a
+                id="user-content-implementation-notes" class="anchor" aria-label="Permalink: Implementation notes"
+                href="#implementation-notes"></a>
+        </div>
+        <p>JSSpeccy 3 is a complete rewrite of JSSpeccy to make full use of the web technologies and APIs available
+            as of 2021 for high-performance web apps. The emulation runs in a Web Worker, freeing up the UI thread to handle
+            screen and audio updates, with the emulator core (consisting of the Z80 processor emulation and any auxiliary
+            processes that are likely to interrupt its execution multiple times per frame, such as constructing the video
+            output, reading the keyboard and generating audio) running in WebAssembly, compiled from AssemblyScript (with a
+            custom preprocessor).</p>
+        <div class="markdown-heading">
+            <h2 tabindex="-1" class="heading-element">Contributions</h2><a id="user-content-contributions"
+                class="anchor" aria-label="Permalink: Contributions" href="#contributions"></a>
+        </div>
+        <p>These days, releasing open source code tends to come with an unspoken social contract, so I'd like to set
+            some expectations...</p>
+        <p>This is a personal project, created for my own enjoyment, and my act of publishing the code does not come
+            with any commitment to provide technical support or assistance. I'm always happy to hear of other people getting
+            similar enjoyment from hacking on the code, and pull requests are welcome, but I can't promise to review them or
+            shepherd them into an "official" release on any sort of timescale. Managing external contributions is often the
+            point at which a "fun" project stops being fun. If there's a feature you need in the project - feel free to fork.
+        </p>
+        <p>[These are Matt Westcott’s words… but the same applies to me, and to this fork!]</p>
+        <div class="markdown-heading">
+            <h2 tabindex="-1" class="heading-element">Embedding</h2><a id="user-content-embedding" class="anchor"
+                aria-label="Permalink: Embedding" href="#embedding"></a>
+        </div>
+        <p>JSSpeccy is designed with embedding in mind. To include it in your own site, download <a
+                href="https://github.com/bunsen32/jsspeccy-alt/releases">a release archive</a> and copy the contents of the
+            <code>jsspeccy</code> folder somewhere web-accessible. Be sure to keep the .js and .wasm files and the
+            subdirectories in the same place relative to jsspeccy.js.</p>
+        <p>In the <code>&lt;head&gt;</code> of your HTML page, include the tag</p>
+        <blockquote class="example">
+            <pre><code>&lt;script src="/path/to/jsspeccy.js">&lt;/script></code></pre></blockquote>
+        <p>replacing <code>/path/to/jsspeccy.js</code> with (yes!) the path to jsspeccy.js. At the point in the page
+            where you want the emulator to show, place the code:</p>
+        <blockquote class="example">
+            <pre><code>&lt;div id="jsspeccy">&lt;/div>
+&lt;script>JSSpeccy(document.getElementById('jsspeccy'))&lt;/script></code></pre></blockquote>
+        <p>If you're suitably confident with JavaScript, you can put the call to <code>JSSpeccy</code> anywhere else
+            that runs on page load, or in response to any user action.</p>
+        <p>You can also pass configuration options as a second argument to <code>JSSpeccy</code>:</p>
+        <blockquote class="example">
+            <pre><code>&lt;script>JSSpeccy(document.getElementById('jsspeccy'), {zoom: 2, machine: 48})&lt;/script></code></pre></blockquote>
+        <p>The available configuration options are:</p>
+        <ul>
+            <li><code>autoStart</code>: if true, the emulator will start immediately with no need to press the play button. Bear
+                in mind that browser policies usually don't allow enabling audio without a user interaction, so if you enable
+                this option (and don't put the <code>JSSpeccy</code> call behind an onclick event or similar), expect things to
+                be silent.</li>
+            <li><code>autoLoadTapes</code>: if true, any tape files opened (either manually or through the openUrl option) will
+                be loaded automatically without the user having to enter LOAD "" or select the Tape Loader menu option.</li>
+            <li><code>tapeAutoLoadMode</code>: specifies the mode that the machine should be set to before auto-loading tape
+                files. When set to 'default' (the default), this is equivalent to selecting the Tape Loader menu option on
+                machines that support it; when set to 'usr0', this is equivalent to entering 'usr0' in 128 BASIC then LOAD ""
+                from the resulting 48K BASIC prompt (which leaves 128K memory paging available without the extra housekeeping of
+                the 128K ROM - this mode is commonly used for launching demos).</li>
+            <li><code>machine</code>: specifies the machine to emulate. Can be <code>16</code> (for a 16K Spectrum),
+                <code>48</code> (for a 48K Spectrum), <code>128</code> (for a 128K Spectrum), or <code>5</code> (for a Pentagon
+                128).</li>
+            <li><code>openUrl</code>: specifies a URL, or an array of URLs, to a file (or files) to load on startup, in any
+                supported snapshot, tape or archive format. Standard browser security restrictions apply for loading remote
+                files: if the URL being loaded is not on the same domain as the calling page, it must serve <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" rel="nofollow">CORS HTTP headers</a> to be
+                loadable.</li>
+            <li><code>roms</code>: a JS struct which provides an optional map of logical ROM names to ROM file URLs. (May be
+                omitted or partial.) The keys are listed below, and each value is a URL (CORS comments above apply here too).
+                JSSpeccy3 has default values for each of these:
+                <ul>
+                    <li><code>Spectrum48K</code>: Single 16K ROM used when machine type is <code>16</code> or <code>48</code>
+                    </li>
+                    <li><code>Spectrum128K_0</code> &amp; <code>Spectrum128K_1</code>: The two ROMs to use when machine type is
+                        <code>128</code></li>
+                    <li><code>Pentagon_0</code>: The first ROM to use when machine type is <code>5</code>. (The Pentagon uses
+                        <code>Spectrum128K_1</code> as its second ROM.)</li>
+                    <li><code>BetaDisk</code>: The TRDOS ROM to use when machine type is <code>5</code>, and the BetaDisk ROM is
+                        paged in.</li>
+                </ul>
+            </li>
+            <li><code>zoom</code>: specifies the size of the emulator window; 1 for 100% size (one Spectrum pixel per screen
+                pixel), 2 for 200% size and so on.</li>
+            <li><code>sandbox</code>: if true, all UI options for opening a new file are disabled - useful if you're showcasing
+                a specific bit of Spectrum software on your page.</li>
+            <li><code>tapeTrapsEnabled</code>: if true (the default), the emulator will recognise when the tape loading routine
+                in the ROM is called, and load tape files instantly instead.</li>
+            <li><code>keyboardEnabled</code>: True by default; if false, the emulator will not respond to keypresses.</li>
+            <li><code>uiEnabled</code>: True by default; if false, the menu bar and toolbar will not be shown.</li>
+            <li><code>keyboardMap</code>: if this is set to the value <code>"recreated"</code>, the emulator will accept
+                keypresses in the encoded format emitted by the <a href="https://recreatedzxspectrum.com/"
+                    rel="nofollow">Recreated ZX Spectrum</a> keyboard in "game mode". If it is unset or set to any other value,
+                the emulator will accept keypresses as normal.</li>
+            <li><code>features</code>: Additional (emulated) hardware features. Currently only <code>'ulaplus'</code> is
+                supported, and the setting defaults to <code>['ulaplus']</code>. To <em>disable</em> ULAplus functionality, set
+                to <code>[]</code>.</li>
+        </ul>
+        <p>For additional JavaScript hackery, the return value of the JSSpeccy function call is an object exposing a
+            number of functions for controlling the running emulator:</p>
+        <blockquote class="example">
+            <pre><code>&lt;script>
+    let emu = JSSpeccy(document.getElementById('jsspeccy'));
+    emu.openFileDialog();
+&lt;/script>
+</code></pre></blockquote>
+        <ul>
+            <li><code>emu.setZoom(zoomLevel)</code> - set the zoom level of the emulator</li>
+            <li><code>emu.enterFullscreen()</code> - activate full-screen mode</li>
+            <li><code>emu.exitFullscreen()</code> - exit full-screen mode</li>
+            <li><code>emu.toggleFullscreen()</code> - enter or exit full-screen mode</li>
+            <li><code>emu.setMachine(machine)</code> - set the emulated machine type</li>
+            <li><code>emu.openFileDialog()</code> - open the file chooser dialog</li>
+            <li><code>emu.openUrl(url)</code> - open the file at the given URL</li>
+            <li><code>emu.loadSnapshotFromStruct(snapshot)</code> - load a snapshot from the given data structure; the data
+                format is currently undocumented but runtime/snapshot.js should give you a decent idea of it...</li>
+            <li><code>emu.onReady(callback)</code> - call the given callback once the emulator is fully initialised</li>
+            <li><code>emu.exit()</code> - immediately stop the emulator and remove it from the document</li>
+        </ul>
+        <div class="markdown-heading">
+            <h2 tabindex="-1" class="heading-element">Licence</h2><a id="user-content-licence" class="anchor"
+                aria-label="Permalink: Licence" href="#licence"></a>
+        </div>
+        <p>JSSpeccy-ALT is licensed under the GPL version 3</p>
+
+        <hr />
+        <footer>
+            JSSpeccy-ALT documented by Andrew Forrest. Forked from JSSpeccy3 by Matt Westcott.
+            Spectrum firmware orginally &copy;&nbsp;1982 Sinclair Research Ltd, now freely licenced by Amstrad plc.
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>48KB | JSSpeccy-ALT</title>
+        <script src="jsspeccy/jsspeccy.js"></script>
+        <link rel="stylesheet" href="./style.css?6" />
+    </head>
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {zoom: 2, uiEnabled: false, autoStart: true,machine:48, openUrl: './Jack_the_Nipper_1986_Gremlin_Graphics_Software.z80'})">
+        <nav>
+            <ul>
+                <li class="title">JSSpeccy-ALT</li>
+                <li><a href="./">16K</a></li>
+                <li class="active"><a href="48k">48K</a></li>
+                <li><a href="128k">128K</a></li>
+                <li><a href="pentagon">Pentagon</a></li>
+                <li><a href="ulaplus">ULA+</a></li>
+                <li><a href="manual">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 2</h1>
+        <h2>ZX Spectrum 48K</h2>
+
+        <p>
+            A year after release, in 1983, the price of the 48&nbsp;KB model was reduced to £129. In addition,
+            existing 16 KB users could increase their memory to 48&nbsp;KB by buying an upgrade kit. The 48 KB Spectrum became the ‘standard’
+            model.
+        </p>
+
+        <div class="emulator" id="jsspeccy"></div>
+
+        <p style="font-style: italic;">Sinclair ZX Spectrum 48K / <cite>Jack The Nipper</cite> (1986) by Gremlin Graphics</p>
+
+        <p>
+            In <cite>Jack The Nipper</cite>, you play a scurrelous baby, out to cause mischief. Sort of a spiritual predecessor to The Untitled Goose Game.
+        </p>
+        <blockquote class="example">
+            <pre><code>// JSSpeccy configuration
+emu = JSSpeccy(
+    document.getElementById('jsspeccy'),
+    {
+        machine: 48,
+        openUrl: './Jack_the_Nipper_1986_Gremlin_Graphics_Software.z80',
+        uiEnabled: false,
+        autoStart: true,
+        zoom: 2,
+    })
+</code></pre></blockquote>
+        <p>
+            The configuration above, selects 48 KB Spectrum model (“<code>machine: 48</code>”), and pre-loads
+            a <code>.Z80</code>-format memory snapshot of a game, copied from
+            <a href=https://archive.org/">The Internet Archive</a>, which has a very extensive
+            <a href="https://archive.org/details/zx_spectrum_library_games">library of historical ZX Spectrum games</a>.
+        </p>
+        <p class="note">
+            Please note that since we’ve enabled <code>autostart: true</code>, the game starts when this webpage loads, but there is
+            no audio. This is a limitation of web browsers: Scripts are disallowed from playing audio if they start automatically on page load,
+            to avoid irritating the user.
+        </p>
+
+        <hr />
+        <footer>
+            JSSpeccy-ALT documented by Andrew Forrest. Forked from JSSpeccy3 by Matt Westcott.
+            Spectrum firmware orginally &copy;&nbsp;1982 Sinclair Research Ltd, now freely licenced by Amstrad plc.
+        </footer>
+    </body>
+</html>

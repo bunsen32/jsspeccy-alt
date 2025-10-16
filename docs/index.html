@@ -2,20 +2,20 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>JSSpeccy v3</title>
+        <title>16KB | JSSpeccy-ALT</title>
         <script src="jsspeccy/jsspeccy.js"></script>
-        <link rel="stylesheet" href="./style.css?2" />
+        <link rel="stylesheet" href="./style.css?6" />
     </head>
-    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {uiEnabled:false, zoom: 2, sandbox: false,machine:16, roms: {Spectrum48K:'./G13R_ROM.bin'}})">
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {autoStart:true, uiEnabled:false, zoom: 2, sandbox: true,machine:16, roms: {Spectrum48K:'./G9R_ROM.bin'}})">
         <nav>
             <ul>
                 <li class="title">JSSpeccy-ALT</li>
                 <li class="active"><a href="">16K</a></li>
-                <li><a href="">48K</a></li>
-                <li><a href="">128K</a></li>
-                <li><a href="">Pentagon</a></li>
-                <li><a href="">ULA+</a></li>
-                <li><a href="">Manual</a></li>
+                <li><a href="48k">48K</a></li>
+                <li><a href="128k">128K</a></li>
+                <li><a href="pentagon">Pentagon</a></li>
+                <li><a href="ulaplus">ULA+</a></li>
+                <li><a href="manual">Manual</a></li>
             </ul>
         </nav>
         <h1>Chapter 1</h1>
@@ -28,12 +28,15 @@
 
         <div class="emulator" id="jsspeccy"></div>
 
-        <p style="font-style: italic;">Sinclair ZX Spectrum 16K / <cite>Hungry Horace</cite> (ROM version) by Psion &amp; Melbourne House</p>
+        <p style="font-style: italic;">Sinclair ZX Spectrum 16K / <cite>Space Raiders</cite> (ROM version) by Psion &amp; Melbourne House</p>
+
+        <p><kbd>Z</kbd> and <kbd>X</kbd> move left and right. <kbd>5</kbd> to fire.</p>
 
         <p>
-            Some early Spectrum games were available on ROM cartridge, though not many were released this way, because they were expensive and required an additional peripheral, the Interface 2.
-            In <a href="http://www.fruitcake.plus.com/Sinclair/Interface2/Cartridges/Interface2_RC_G13R.htm"><cite>Hungry Horace</cite></a> from 1982, you
-            control a… surrealistic nightmare trying to escape from angry, puce disembodied heads.
+            Some early Spectrum games were available on ROM cartridge, though very few were released this way, because the cartridges were
+            expensive, and required an additional peripheral, the Interface 2.
+            <a href="http://www.fruitcake.plus.com/Sinclair/Interface2/Cartridges/Interface2_RC_G9R.htm"><cite>Space Raiders</cite></a> from 1982, is
+            a fairly blatent rip-off of Space Invaders.
         </p>
         <blockquote class="example">
             <pre><code>// JSSpeccy configuration
@@ -41,17 +44,23 @@ emu = JSSpeccy(
     document.getElementById('jsspeccy'),
     {
         machine: 16,
-        roms: { Spectrum48K: './G13R_ROM.bin' }
+        roms: { Spectrum48K: './G9R_ROM.bin' },
         uiEnabled: false,
+        autoStart: true,
         zoom: 2,
     })
 </code></pre></blockquote>
         <p>
             In the configuration above, we’ve selected the 16 KB Spectrum machine (“<code>machine: 16</code>”), and specified
-            the URL path to an uploaded Hungry Horrace ROM (<code>'./G13R_ROM.bin'</code>).
+            the URL path to an uploaded Space Raiders ROM (<code>'./G9R_ROM.bin'</code>).
             (The ROM is specified with “<code>Spectrum48K:</code>”, because the 16 KB and 48 KB models share essentially the same hardware.)
         </p>
-        <p>For more detail see the <a href="README.html">JSSpeccy manual</a>.</p>
+        <p class="note">
+            Please note that since we’ve enabled <code>autostart: true</code>, the game starts when this webpage loads, but there is
+            no audio. This is a limitation of web browsers: Scripts are disallowed from playing audio if they start automatically on page load,
+            to avoid irritating the user.
+        </p>
+        <p>For more detail see the <a href="manual">JSSpeccy manual</a>.</p>
 
         <hr />
         <footer>

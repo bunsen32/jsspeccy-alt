@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Pentagon | JSSpeccy-ALT</title>
+        <script src="jsspeccy/jsspeccy.js"></script>
+        <link rel="stylesheet" href="./style.css?4" />
+    </head>
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {uiEnabled:true, zoom: 2, autoStart: false,machine:5})">
+        <nav>
+            <ul>
+                <li class="title">JSSpeccy-ALT</li>
+                <li><a href="./">16K</a></li>
+                <li><a href="48k">48K</a></li>
+                <li><a href="128k">128K</a></li>
+                <li class="active"><a href="pentagon">Pentagon</a></li>
+                <li><a href="ulaplus">ULA+</a></li>
+                <li><a href="manual">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 4</h1>
+        <h2>Pentagon 128K</h2>
+
+        <p>
+            In the 1990s, amateurs in the former Soviet Union cloned the ZX Spectrum 128, creating The Pentagon (Russian: <i>Пентагон</i>)
+            home computer, following freely distributable documentation.
+        </p>
+        <p>
+            This reflects some of the dozens of official and unofficial Spectrum clones which have been created.
+        </p>
+
+        <div class="emulator" id="jsspeccy"></div>
+
+        <p style="font-style: italic;">Pentagon 128</p>
+
+        <blockquote class="example">
+            <pre><code>// JSSpeccy configuration
+emu = JSSpeccy(
+    document.getElementById('jsspeccy'),
+    {
+        machine: 5,
+        uiEnabled: true,
+        autoStart: false,
+        zoom: 2,
+    })
+</code></pre></blockquote>
+        <p>
+            The configuration above, selects the Pentagon 128 model (“<code>machine: 5</code>”), with nothing preloaded.
+        </p>
+
+        <hr />
+        <footer>
+            JSSpeccy-ALT documented by Andrew Forrest. Forked from JSSpeccy3 by Matt Westcott.
+            Spectrum firmware orginally &copy;&nbsp;1982 Sinclair Research Ltd, now freely licenced by Amstrad plc.
+        </footer>
+    </body>
+</html>

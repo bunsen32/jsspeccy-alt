@@ -1,5 +1,5 @@
 html {
-	background: #181830 100% 100%/ 100px 200px no-repeat url('./rainbow.png');
+	background: #18182c 100% 100%/ 100px 200px no-repeat url('./rainbow.png');
 	min-height:100%;
 }
 
@@ -8,6 +8,7 @@ body {
 	font-family: Helvetica, Arial, sans-serif;
 	max-width: 40em;
 	margin:auto;
+	line-height: 1.5;
 }
 
 a {
@@ -33,8 +34,8 @@ h2 {
 	font-size: 1.8rem;
 }
 
-p {
-	line-height: 1.5;
+p.note {
+	font-style: italic;
 }
 
 nav ul {
@@ -73,7 +74,7 @@ nav li.active a {
 	border-radius:32px;
 }
 .emulator canvas {
-	border-radius: 9px;
+	border-radius: 8px;
 }
 
 blockquote.example {
@@ -82,8 +83,18 @@ blockquote.example {
 	padding:1ex 24px;
 }
 
+code {
+	background: #151520;
+	font-weight: bold;
+}
+
 footer {
 	font-size:80%;
 	padding: 0.25em 0 0.75em;
-	line-height: 1.5;
+}
+
+kbd {
+	border: 1px solid;
+	padding: 2px 3px;
+	border-radius:3px;
 }

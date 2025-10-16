@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>ULAplus | JSSpeccy-ALT</title>
+        <script src="jsspeccy/jsspeccy.js"></script>
+        <link rel="stylesheet" href="./style.css?4" />
+    </head>
+    <body onload="emu = JSSpeccy(document.getElementById('jsspeccy'), {uiEnabled:false, zoom: 2, autoStart: true,machine:128, openUrl: './ulaplus-colours.szx'})">
+        <nav>
+            <ul>
+                <li class="title">JSSpeccy-ALT</li>
+                <li><a href="./">16K</a></li>
+                <li><a href="48k">48K</a></li>
+                <li><a href="128k">128K</a></li>
+                <li><a href="pentagon">Pentagon</a></li>
+                <li class="active"><a href="ulaplus">ULA+</a></li>
+                <li><a href="manual">Manual</a></li>
+            </ul>
+        </nav>
+        <h1>Chapter 5</h1>
+        <h2>ULAplus</h2>
+
+        <p>
+            Even into the 2000s, 2010s and 2020s, the Spectrum continues to be popular with enthusiasts and retro-games geeks.
+            In 1999, a standard called ULAplus extended the machine’s colour palette from 15 colours to (up to) 256 colours.
+        </p>
+        <p>
+            ULAplus is implemented in many emulators (including this one), and in recent hardware revivals, such as The Spectrum (2024).
+            Video adapters for the original 1982 Spectrum, such as the ZX-HD and ZX-VGA, incorporate it too.
+        </p>
+
+        <div class="emulator" id="jsspeccy"></div>
+
+        <p style="font-style: italic;">Sinclair ZX Spectrum 128K / <cite>ULAplus demo</cite></p>
+
+        <blockquote class="example">
+            <pre><code>// JSSpeccy configuration
+emu = JSSpeccy(
+    document.getElementById('jsspeccy'),
+    {
+        machine: 128,
+        openUrl: './ulaplus-colours.szx',
+        uiEnabled: false,
+        autoStart: true,
+        zoom: 2,
+    })
+</code></pre></blockquote>
+        <p>
+            The configuration above, selects 128 KB Spectrum model (“<code>machine: 128</code>”), and pre-loads
+            a <code>.SZX</code>-format memory snapshot of one of the standard ULAplus demos.
+        </p>
+
+        <hr />
+        <footer>
+            JSSpeccy-ALT documented by Andrew Forrest. Forked from JSSpeccy3 by Matt Westcott.
+            Spectrum firmware orginally &copy;&nbsp;1982 Sinclair Research Ltd, now freely licenced by Amstrad plc.
+        </footer>
+    </body>
+</html>
