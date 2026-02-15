@@ -94,9 +94,10 @@ let audioBufferPointer:u32 = 0;
 
 let betadiskEnabled:bool = false;
 let betadiskROMActive:bool = false;
-let tapeTrapsEnabled:bool = false;
-let tapeTrapsEnabledRom0:bool = false;
-let tapeTrapsEnabledRom1:bool = false;
+#alloc romTraps[6]: u16
+let trapsEnabled:bool = false;
+let trapAddress0:u16 = 0xffff;
+let trapAddress1:u16 = 0xffff;
 
 // Screen normal colour palette:
 #alloc standardPalette[16]:u8
@@ -386,13 +387,46 @@ export function setHalted(val:bool):void {
 export function getHalted():bool {
     return halted;
 }
-export function setTapeTraps(rom0:bool, rom1:bool):void {
-    tapeTrapsEnabledRom0 = rom0;
-    tapeTrapsEnabledRom1 = rom1;
-    const currentPage0 = memoryPageReadMap[0];
-    tapeTrapsEnabled =
-        currentPage0 == ROM_PAGE_0 && tapeTrapsEnabledRom0 ||
-        currentPage0 == ROM_PAGE_1 && tapeTrapsEnabledRom1;
+function updateRomTraps():void {
+    const romIndex = memoryPageReadMap[0] - ROM_PAGE_0;
+    if (romIndex > 2) {
+        trapsEnabled = false;
+        return;
+    }
+
+    const p = romIndex * 2
+    trapAddress0 = romTraps[p+0];
+    trapAddress1 = romTraps[p+1];
+
+    if (trapAddress0 == 0xffff) trapAddress0 = trapAddress1;
+    if (trapAddress1 == 0xffff) trapAddress1 = trapAddress0;
+    trapsEnabled = (trapAddress0 != 0xffff);
+}
+export function addAddressTrap(physicalPage:u8, address: u16):boolean {
+    const romPage = physicalPage - ROM_PAGE_0;
+    if (romPage > 2) return false; // We only have 3 ROM pages defined.
+    if (address > 0x3fff) return false; // Must be in ROM range (low 16 KB)
+    const p = romPage * 2;
+
+    // Put the provided trap address in first available slot:
+    if (romTraps[p+0] == 0xffff) {
+        romTraps[p+0] = address;
+        return true;
+
+    } else if (romTraps[p+1] == 0xffff) {
+        romTraps[p+1] = address;
+        return true;
+
+    } else {
+        return false;
+    }
+    updateRomTraps();
+}
+export function clearAllTraps():void {
+    for(let i = 0; i < 6; i++) {
+        romTraps[i] = 0xffff;
+    }
+    updateRomTraps();
 }
 
 export function getUlaPlusEnabled():bool {
@@ -448,10 +482,7 @@ export function setTapePulseBufferState(writeIndex: u16, tstateCount:u32):void {
 
 function setActiveRom(page:u8):void {
     memoryPageReadMap[0] = page;
-    const currentPage0 = memoryPageReadMap[0];
-    tapeTrapsEnabled =
-        currentPage0 == ROM_PAGE_0 && tapeTrapsEnabledRom0 ||
-        currentPage0 == ROM_PAGE_1 && tapeTrapsEnabledRom1;
+    updateRomTraps();
 }
 
 function readMem(addr:u16):u8 {
@@ -1000,11 +1031,8 @@ export function runUntil(maxT:u32):i16 {
             }
         }
 
-        if (
-            (pc == 0x056b || pc == 0x0111)
-            && tapeTrapsEnabled && willTrap
-        ) {
-            // tape loading trap
+        if (trapsEnabled && willTrap && (pc == trapAddress0 || pc == trapAddress1)) {
+            // ROM trap (typically for fast tape loading code)
             return 2;
         }
         willTrap = true;
