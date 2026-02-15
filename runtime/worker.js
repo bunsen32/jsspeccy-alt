@@ -65,9 +65,11 @@ const loadSnapshot = (snapshot) => {
 
 const setTapeTrapsEnabled = (isEnabled) => {
     tapeTrapsEnabled = isEnabled;
-    core.setTapeTraps(
-        romPageContainingTapeCode == 0 && tapeTrapsEnabled,
-        romPageContainingTapeCode == 1 && tapeTrapsEnabled)
+    core.clearAllTraps();
+    if (tapeTrapsEnabled) {
+        core.addAddressTrap(romPageContainingTapeCode, 0x0111);
+        core.addAddressTrap(romPageContainingTapeCode, 0x056b);
+    }
 }
 
 const setMachineType = (modelCode) => {
@@ -77,15 +79,15 @@ const setMachineType = (modelCode) => {
         case 48:
         case 1221:
             setRoms(ROM_48K);
-            romPageContainingTapeCode = 0;
+            romPageContainingTapeCode = core.ROM_PAGE_0;
             break;
         case 5:
             setRoms(ROM_Pentagon_0, ROM_128K_1, ROM_BetaDisk);
-            romPageContainingTapeCode = 1;
+            romPageContainingTapeCode = core.ROM_PAGE_1;
             break;
         case 128:
             setRoms(ROM_128K_0, ROM_128K_1);
-            romPageContainingTapeCode = 1;
+            romPageContainingTapeCode = core.ROM_PAGE_1;
             break;
         default:
             romPageContainingTapeCode = -1;
