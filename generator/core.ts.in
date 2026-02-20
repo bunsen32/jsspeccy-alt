@@ -409,18 +409,16 @@ export function addAddressTrap(physicalPage:u8, address: u16):boolean {
     const p = romPage * 2;
 
     // Put the provided trap address in first available slot:
-    if (romTraps[p+0] == 0xffff) {
-        romTraps[p+0] = address;
-        return true;
-
-    } else if (romTraps[p+1] == 0xffff) {
-        romTraps[p+1] = address;
-        return true;
-
-    } else {
-        return false;
+    for(let slot = 0; slot < 2; slot++) {
+        if (romTraps[p + slot] == 0xffff) {
+            romTraps[p + slot] = address;
+            updateRomTraps();
+            return true;
+        }
     }
-    updateRomTraps();
+    
+    // Couldn’t find a free slot, so fail:
+    return false;
 }
 export function clearAllTraps():void {
     for(let i = 0; i < 6; i++) {
