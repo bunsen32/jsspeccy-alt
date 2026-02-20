@@ -250,6 +250,9 @@ let hasMemoryPagingHardware:bool = 0;
 let installedRam = 48;
 
 export function setMachineType(type:u32):void {
+    memoryPageReadMap = [ROM_PAGE_0, 5, 2, 0];
+    memoryPageWriteMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
+
     isTestMachine = (type == 1212);
     if (type == 48 || type == 16 || isTestMachine) {
         frameCycleCount = 69888;
@@ -260,6 +263,10 @@ export function setMachineType(type:u32):void {
         betadiskEnabled = false;
         hasFloatingBus = !isTestMachine;
         installedRam = (type == 16) ? 16 : 48;
+        if (isTestMachine) {
+            // Test machine type has writeable ROM:
+            memoryPageWriteMap[0] = ROM_PAGE_0;
+        }
 
     } else if (type == 5) {  // pentagon
         frameCycleCount = 71680;
@@ -282,20 +289,16 @@ export function setMachineType(type:u32):void {
         hasFloatingBus = true;
         installedRam = 128;
     }
-    reset();
-}
-export function reset():void {
-    memoryPageReadMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
-    memoryPageWriteMap = [ROM_PAGE_SCRATCH, 5, 2, 0];
-    setActiveRom(ROM_PAGE_0);
+
     if (installedRam < 48) missingRam(3);
     if (installedRam < 32) missingRam(2);
     if (installedRam < 16) missingRam(1);
+    reset();
+}
+export function reset():void {
+    setActiveRom(ROM_PAGE_0);
+    setActiveRamPage(0);
     pagingLocked = !hasMemoryPagingHardware;
-    if (isTestMachine) {
-        // 1212 = test machine type with writeable ROM
-        memoryPageWriteMap[0] = ROM_PAGE_0;
-    }
 
     for (let i:u8 = 0; i < 14; i++) {
         writeAYRegister(i, 0);
@@ -308,6 +311,7 @@ export function reset():void {
     interruptible = false;
     halted = false;
     opcodePrefix = 0;
+
     framebufferIndex = 0;
 }
 clearAllTraps();
@@ -404,7 +408,7 @@ export function addAddressTrap(physicalPage:u8, address: u16):boolean {
             return true;
         }
     }
-    
+
     // Couldn’t find a free slot, so fail:
     return false;
 }
@@ -454,6 +458,10 @@ export function setTapePulseBufferState(writeIndex: u16, tstateCount:u32):void {
 function setActiveRom(page:u8):void {
     memoryPageReadMap[0] = page;
     updateRomTraps();
+}
+function setActiveRamPage(page:u8):void {
+    memoryPageReadMap[3] = page;
+    memoryPageWriteMap[3] = page;
 }
 
 function readMem(addr:u16):u8 {
@@ -608,8 +616,7 @@ export function writePort(addr:u16, val:u8):void {
 
             updateFramebuffer();  // so that screen switching happens at the right position
 
-            memoryPageReadMap[3] = val & 0x07;
-            memoryPageWriteMap[3] = val & 0x07;
+            setActiveRamPage(val & 0x07)
             screenPageIndex = (val & 0x08) ? 7 : 5;
             setActiveRom((val & 0x10) ? ROM_PAGE_1 : ROM_PAGE_0);
             pagingLocked = bool(val & 0x20);
